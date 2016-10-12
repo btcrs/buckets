@@ -1,10 +1,11 @@
 #buckets
 
-![Cavs]()
+![cavs]
+(https://github.com/btcrs/buckets/blob/master/cavs.png)
 
 ### Why?
 
-There have been plenty NBA lineups that sounded amazing on paper,and still managed to have
+There have been plenty NBA lineups that sounded amazing on paper and still managed to have
 completely underwhelming seasons. So much goes into an productive team that it's
 easy to write these off as flukes, but maybe there's a simple derivative that
 could've predicted which units had the potential to mesh and whether or

@@ -1,8 +1,7 @@
 #buckets
 
-![cavs]
-(https://github.com/btcrs/buckets/blob/master/cavs.png)
-
+<img src="https://github.com/btcrs/buckets/blob/master/cavs.png" alt="Cavs" width="350" height="350">
+ 
 ### Why?
 
 There have been plenty NBA lineups that sounded amazing on paper and still managed to have

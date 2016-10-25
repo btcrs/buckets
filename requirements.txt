@@ -1,0 +1,8 @@
+matplotlib==1.5.3
+nbashots==0.1.0a9
+pandas==0.19.0
+requests==2.11.1
+requests_cache==0.4.12
+seaborn==0.6.0
+setuptools==18.2
+sphinx_rtd_theme==0.1.10a0

@@ -1,0 +1,40 @@
+{
+  "name": "buckets",
+  "version": "1.0.0",
+  "description": "Building NBA Lineups",
+  "main": "/src/construct.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node ./build/players.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/btcrs/buckets.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/btcrs/buckets/issues"
+  },
+  "homepage": "https://github.com/btcrs/buckets#readme",
+  "dependencies": {
+    "async": "^2.1.2",
+    "babel": "^6.5.2",
+    "babel-preset-es2015": "^6.18.0",
+    "datalib": "^1.7.3",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "nba-shot-zones": "^1.0.1",
+    "nba.js": "^0.3.2",
+    "q": "^1.4.1",
+    "request": "^2.76.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "react"
+    ]
+  }
+}

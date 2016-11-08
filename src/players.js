@@ -1,9 +1,11 @@
-const nba = require('nba.js').default;
 const zones = require('nba-shot-zones');
+const nba = require('nba.js').default;
 var request = require('request');
 var q = require('q');
 var async = require('async');
 var fs = require('fs');
+
+const shotZones = zones.getZones()
 
 var players = q.all([nba.stats.playerDefenseStats({
         IsOnlyCurrentSeason: 1
@@ -23,9 +25,7 @@ players.then(function success(data) {
         var player_id = stats.id;
         var shot_chart_url = `http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2015-16&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=${player_id}&PlusMinus=N&PlayerPosition=&Rank=N&RookieYear=&Season=2015-16&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0`
         request.get(shot_chart_url, function(err, res, body) {
-            console.log(body)
             var shots = JSON.parse(body);
-            console.log(shots)
             var playersShots = shots.resultSets[0].rowSet;
             var header = shots.resultSets[0].headers;
             var shotLog = playersShots.map(shot => ({
@@ -40,31 +40,18 @@ players.then(function success(data) {
             callback(err, stats)
         })
     }, function(err, results) {
-        // take the shots array and use the x and y coordinates to gather data 
-        //  about the zone from which it was taken
-        //
-        //  create collections of objects of each of these zones 
-        //  zoneName = {
-        //        totalShots
-        //        madeShots
-        //        percentage
-        //        actualShotObjects
-        //  }
-        //
-        //  Introduce Priors and determine the top 15% of each zones
-        //
-        //  Create collections of lineups 
-        //
-        //  Rank their scoring potential
         save(results)
     })
 });
 
-var save = function(players) {
-    fs.writeFile('./data.json', JSON.stringify(players, null, 2), 'utf-8');
-}
-const shotZones = zones.getZones()
 var assignZone = (xLoc, yLoc) => (zones.getZoneFromShot({
     x: xLoc,
     y: yLoc
 }));
+
+var save = function(players) {
+    var name = '/Users/benjamincarothers/Projects/buckets/data/players-' + m().format('MM-DD-YYYY') + '.json';
+    console.log(name)
+    fs.writeFile(name, JSON.stringify(players, null, 2), 'utf-8');
+}
+

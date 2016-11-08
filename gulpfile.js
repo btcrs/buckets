@@ -3,7 +3,7 @@ var es2015 = require('babel-preset-es2015');
 var gulp = require('gulp');
 
 const paths = {
-  src: 'src/players.js',
+  src: 'src/*.js',
   dest: 'build'
 };
 

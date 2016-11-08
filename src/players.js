@@ -40,6 +40,22 @@ players.then(function success(data) {
             callback(err, stats)
         })
     }, function(err, results) {
+        // take the shots array and use the x and y coordinates to gather data 
+        //  about the zone from which it was taken
+        //
+        //  create collections of objects of each of these zones 
+        //  zoneName = {
+        //        totalShots
+        //        madeShots
+        //        percentage
+        //        actualShotObjects
+        //  }
+        //
+        //  Introduce Priors and determine the top 15% of each zones
+        //
+        //  Create collections of lineups 
+        //
+        //  Rank their scoring potential
         save(results)
     })
 });

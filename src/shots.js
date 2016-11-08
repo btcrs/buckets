@@ -1,11 +1,13 @@
 var fs = require('fs');
 var m = require('moment');
+const zones = require('nba-shot-zones');
 
-fs.readFile('/Users/benjamincarothers/Projects/buckets/data/11-6-16.json', function (err, data) {
+const allShotZones = zones.getZones()
+
+fs.readFile('/Users/benjamincarothers/Projects/buckets/data/players-11-6-16.json', function (err, data) {
     var players = JSON.parse(data);
     var positions = {};
     var prior = 1/2
-    // Averages: 200 made 442 taken
     var opinionatedPrior = 200/642
     players.forEach(function (player) {
         var zones = {};
@@ -15,9 +17,16 @@ fs.readFile('/Users/benjamincarothers/Projects/buckets/data/11-6-16.json', funct
             zones[shot.zone].total = zones[shot.zone].total + shot.attempts;
             zones[shot.zone].made = zones[shot.zone].made + shot.made;
             zones[shot.zone].percentage = zones[shot.zone].made/zones[shot.zone].total
-            zones[shot.zone].adjustedPercentage = zones[shot.zone].percentage * prior
-            zones[shot.zone].opinionatedPercentage = zones[shot.zone].percentage * opinionatedPrior
+            zones[shot.zone].adjustedPercentage = zones[shot.zone].percentage + prior
+            zones[shot.zone].opinionatedPercentage = zones[shot.zone].percentage + opinionatedPrior
         });
+        allShotZones.forEach(function(shotZone) {
+            if(!zones[shotZone]){
+              zones[shotZone] =  {"percentage":0.0, "total": 0, "made": 0, "shots": []};
+            }
+        })
+        console.log(zones['three (deep)'])
+
         player.zones = zones
 
         positions[player.position] = positions[player.position] || [];
@@ -31,5 +40,3 @@ var save = function(players) {
     console.log(name)
     fs.writeFile(name, JSON.stringify(players, null, 2), 'utf-8');
 }
-
-//  determine the top 15% of each zones

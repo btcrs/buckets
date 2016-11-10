@@ -1,6 +1,6 @@
 #buckets
 
-<img src="https://github.com/btcrs/buckets/blob/master/docs/cavs.png" alt="Cavs" width="350" height="350">
+<img src="https://github.com/btcrs/buckets/blob/master/docs/ilovebasketball.gif" alt="Cavs">
  
 ### Why?
 

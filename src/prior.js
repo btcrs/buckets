@@ -1,13 +1,14 @@
 const chalk = require('chalk');
 const log = console.log;
 var math = require('mathjs');
+var m = require('moment');
 var fs = require('fs');
 
 fs.readFile('/Users/benjamincarothers/Projects/buckets/data/shots-11-08-2016.json', function (err, data) {
     var positions = JSON.parse(data);
     var shotsTaken = [];
     var shotsMade = [];
-    var zoneAverages = {} 
+    var zoneAverages = {}
     for (var key in positions) {
        if (positions.hasOwnProperty(key)) {
              var position = positions[key];
@@ -29,37 +30,25 @@ fs.readFile('/Users/benjamincarothers/Projects/buckets/data/shots-11-08-2016.jso
           }
     }
 
+    var save = function(zones) {
+        var name = '/Users/benjamincarothers/Projects/buckets/data/priors-' + m().format('MM-DD-YYYY') + '.json';
+        fs.writeFile(name, JSON.stringify(zones, null, 2), 'utf-8');
+    }
+
+    var zonePriors= {}
     log(chalk.red.underline.bold('Percentages:'))
     for (var key in zoneAverages) {
         log(chalk.green.underline.bold(key + ':'))
-        log(math.mean(zoneAverages[key].made) / math.mean(zoneAverages[key].total))
+        log('  ' + math.mean(zoneAverages[key].made) / math.mean(zoneAverages[key].total))
+        zonePriors[key] = math.mean(zoneAverages[key].made) / (math.mean(zoneAverages[key].made) + math.mean(zoneAverages[key].total))
     }
     log(chalk.blue.underline.bold('Average:'))
-    log(math.mean(shotsMade)/math.mean(shotsTaken))
-    log(math.sum(shotsMade)/math.sum(shotsTaken))
-
-
-
-
-
-    log(chalk.red.underline.bold('Average Taken and Made:'))
-    log(chalk.red.underline.bold('Percentages:'))
-    for (var key in zoneAverages) {
-        log(chalk.green.underline.bold(key + ':'))
-        log(chalk.blue.underline.bold('Shots Taken:'))
-        if(key === 'three (deep)'){
-            log(zoneAverages[key])
-        }
-        log(math.mean(zoneAverages[key].total))
-        log(chalk.blue.underline.bold('Shots Made:'))
-        log(math.mean(zoneAverages[key].made))
-    }
-    log(chalk.blue.underline.bold('Max:'))
-    log(math.max(shotsTaken))
-    log(chalk.blue.underline.bold('Min:'))
-    log(math.min(shotsTaken))
+    log('  ' + math.mean(shotsMade)/math.mean(shotsTaken))
+    log('  ' + math.sum(shotsMade)/math.sum(shotsTaken))
     log(chalk.blue.underline.bold('Shots Taken:'))
-    log(math.mean(shotsTaken))
+    log('  ' + math.mean(shotsTaken))
     log(chalk.blue.underline.bold('Shots Made:'))
-    log(math.mean(shotsMade))
+    log('  ' + math.mean(shotsMade))
+    
+    save(zonePriors)
 });

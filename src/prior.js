@@ -16,8 +16,7 @@ var generatePriors = function() {
     var zoneAverages = {}
     for (var key in positions) {
       if (positions.hasOwnProperty(key)) {
-        var position = positions[key];
-        position.forEach(function(player) {
+        position[key].forEach(function(player) {
           for (var zone in player.zones) {
             if (player.zones.hasOwnProperty(zone)) {
               var made = 0;
@@ -42,24 +41,26 @@ var generatePriors = function() {
         })
       }
     }
-
-    var save = function(zones) {
-      var name = '/Users/benjamincarothers/Projects/buckets/data/priors-' + m().format('MM-DD-YYYY') + '.json';
-      fs.writeFile(name, JSON.stringify(zones, null, 2), 'utf-8');
-    }
-
     var zonePriors = {}
-    log(chalk.red.underline.bold('Percentages:'))
     for (var key in zoneAverages) {
-      log(chalk.green.underline.bold('"' + key + '"' + ': ') + Math.floor(math.mean(zoneAverages[key].made)) + '/' + Math.floor(math.mean(zoneAverages[key].total) + math.mean(zoneAverages[key].made)) + ',')
-      var alpha = Math.floor(math.mean(zoneAverages[key].made))
-      var alphaBeta = Math.floor(math.mean(zoneAverages[key].made) + math.mean(zoneAverages[key].total))
-      zonePriors[key] = Fraction(alpha, alphaBeta)
+      zonePriors[key] = calculatePrior(zoneAverages[key])
     }
     save(zonePriors)
     deferred.resolve(zonePriors)
   });
   return deferred.promise;
+}
+
+var calculatePrior = function(averages) {
+  log(chalk.green.underline.bold('"' + key + '"' + ': ') + Math.floor(math.mean(averages.made)) + '/' + Math.floor(math.mean(averages.total) + math.mean(averages.made)) + ',')
+  var alpha = Math.floor(math.mean(averages.made))
+  var alphaBeta = Math.floor(math.mean(averages.made) + math.mean(averages.total))
+  return Fraction(alpha, alphaBeta)
+}
+
+var save = function(zones) {
+  var name = '/Users/benjamincarothers/Projects/buckets/data/priors-' + m().format('MM-DD-YYYY') + '.json';
+  fs.writeFile(name, JSON.stringify(zones, null, 2), 'utf-8');
 }
 
 module.exports = generatePriors

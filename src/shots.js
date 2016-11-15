@@ -4,19 +4,10 @@ var Q = require('q');
 var math = require('mathjs');
 
 const allShotZones = [
-  'restricted area',
-  'low post',
-  'high post',
-  'midrange (lower right)',
-  'midrange (lower left)',
-  'midrange (upper right)',
-  'midrange (upper left)',
-  'midrange (upper middle)',
-  'three (right corner)',
-  'three (left corner)',
-  'three (right)',
-  'three (middle)',
-  'three (left)'
+  'restricted area', 'low post', 'high post', 'midrange (lower right)',
+  'midrange (lower left)', 'midrange (upper right)', 'midrange (upper left)',
+  'midrange (upper middle)', 'three (right corner)', 'three (left corner)',
+  'three (right)', 'three (middle)', 'three (left)'
 ]
 
 var gather = function(promisedPlayers) {

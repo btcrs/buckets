@@ -5,22 +5,39 @@ var async = require('async');
 var math = require('mathjs');
 var combinatorics = require('js-combinatorics');
 
-
 var generateLineups = function(promisedShots) {
   var deferred = Q.defer();
   fs.readFile('/Users/benjamincarothers/Projects/buckets/data/shots-11-13-2016.json', function(err, data) {
     //https://en.wikipedia.org/wiki/Tweener_(basketball)
+
     var centerPositions = ['C-F', 'C']
     var powerForwardPositions = ['F-C', 'F']
     var forwardPositions = ['F-G', ]
     var guardPositions = ['G-F']
     var pointPositions = ['G']
 
+    const allShotZones = [
+      'restricted area', 'low post', 'high post', 'midrange (lower right)',
+      'midrange (lower left)', 'midrange (upper right)', 'midrange (upper left)',
+      'midrange (upper middle)', 'three (right corner)', 'three (left corner)',
+      'three (right)', 'three (middle)', 'three (left)'
+    ]
+
     var points = []
     var guards = []
     var forwards = []
     var powers = []
     var centers = []
+
+    var greatestTotal = 0
+    var greatestTotalLineup = {}
+    var bestTotalShots = {}
+    var greatestAverage = 0
+    var greatestAverageLineup = {}
+    var bestAverageShots = {}
+    var greatestScore = 0
+    var greatestScoreLineup = {}
+    var bestScoreShots = {}
 
     var positions = promisedShots || JSON.parse(data);
     for (var position in positions) {
@@ -43,110 +60,31 @@ var generateLineups = function(promisedShots) {
     var cp = combinatorics.cartesianProduct(points, guards, forwards, powers, centers)
 
     const sumValues = (obj) => Object.keys(obj).reduce((acc, value) => acc + obj[value], 0);
-    var greatestTotal = 0
-    var greatestTotalLineup = {}
-    var greatestAverage = 0
-    var greatestAverageLineup = {}
-    var greatestScore = 0
-    var greatestScoreLineup = {}
-    var bestShots = {}
+    const zones = {}
+    const shotLeaders = {}
+
     async.map(cp.toArray(), function(lineup, callback) {
-      const zones = {
-        "restricted area": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["restricted area"].opinionatedPercentage;
-        })),
-        "low post": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["low post"].opinionatedPercentage;
-        })),
-        "high post": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["high post"].opinionatedPercentage;
-        })),
-        "midrange (lower right)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["midrange (lower right)"].opinionatedPercentage;
-        })),
-        "midrange (lower left)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["midrange (lower left)"].opinionatedPercentage;
-        })),
-        "midrange (upper right)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["midrange (upper right)"].opinionatedPercentage;
-        })),
-        "midrange (upper left)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["midrange (upper left)"].opinionatedPercentage;
-        })),
-        "midrange (upper middle)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["midrange (upper middle)"].opinionatedPercentage;
-        })),
-        "three (right corner)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["three (right corner)"].opinionatedPercentage;
-        })),
-        "three (left corner)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["three (left corner)"].opinionatedPercentage;
-        })),
-        "three (right)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["three (right)"].opinionatedPercentage;
-        })),
-        "three (middle)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["three (middle)"].opinionatedPercentage;
-        })),
-        "three (left)": Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones["three (left)"].opinionatedPercentage;
-        })),
-      }
+      allShotZones.forEach(function(shotZone) {
 
-      const shotLeaders = {
-        "restricted area": lineup.filter(function(person) {
-          return person.zones['restricted area'].opinionatedPercentage == zones['restricted area']
-        })[0].zones['restricted area'],
-        "low post": lineup.filter(function(person) {
-          return person.zones['low post'].opinionatedPercentage == zones['low post']
-        })[0].zones['low post'],
-        "high post": lineup.filter(function(person) {
-          return person.zones['high post'].opinionatedPercentage == zones['high post']
-        })[0].zones['high post'],
-        "midrange (lower right)": lineup.filter(function(person) {
-          return person.zones['midrange (lower right)'].opinionatedPercentage == zones['midrange (lower right)']
-        })[0].zones['midrange (lower right)'],
-        "midrange (lower left)": lineup.filter(function(person) {
-          return person.zones['midrange (lower left)'].opinionatedPercentage == zones['midrange (lower left)']
-        })[0].zones['midrange (lower left)'],
-        "midrange (upper right)": lineup.filter(function(person) {
-          return person.zones['midrange (upper right)'].opinionatedPercentage == zones['midrange (upper right)']
-        })[0].zones['midrange (upper right)'],
-        "midrange (upper left)": lineup.filter(function(person) {
-          return person.zones['midrange (upper left)'].opinionatedPercentage == zones['midrange (upper left)']
-        })[0].zones['midrange (upper left)'],
-        "midrange (upper middle)": lineup.filter(function(person) {
-          return person.zones['midrange (upper middle)'].opinionatedPercentage == zones['midrange (upper middle)']
-        })[0].zones['midrange (upper middle)'],
-        "three (right corner)": lineup.filter(function(person) {
-          return person.zones['three (right corner)'].opinionatedPercentage == zones['three (right corner)']
-        })[0].zones['three (right corner)'],
-        "three (left corner)": lineup.filter(function(person) {
-          return person.zones['three (left corner)'].opinionatedPercentage == zones['three (left corner)']
-        })[0].zones['three (left corner)'],
-        "three (right)": lineup.filter(function(person) {
-          return person.zones['three (right)'].opinionatedPercentage == zones['three (right)']
-        })[0].zones['three (right)'],
-        "three (middle)": lineup.filter(function(person) {
-          return person.zones['three (middle)'].opinionatedPercentage == zones['three (middle)']
-        })[0].zones['three (middle)'],
-        "three (left)": lineup.filter(function(person) {
-          return person.zones['three (left)'].opinionatedPercentage == zones['three (left)']
-        })[0].zones['three (left)'],
-      }
+        zones[shotZone] = Math.max.apply(Math, lineup.map(function(o) {
+          return o.zones[shotZone].opinionatedPercentage;
+        }))
 
-
+        shotLeaders[shotZone] = lineup.filter(function(person) {
+          return person.zones[shotZone].opinionatedPercentage == zones[shotZone]
+        })[0].zones[shotZone]
+      })
 
       if (sumValues(zones) > greatestTotal) {
         greatestTotal = sumValues(zones)
         greatestTotalLineup = lineup
-          // bestShots = shotLeaders
+        bestTotalShots = shotLeaders
 
       }
       if (sumValues(zones) / Object.keys(zones).length > greatestAverage) {
         greatestAverage = sumValues(zones) / Object.keys(zones).length
         greatestAverageLineup = lineup
-          // bestShots = shotLeaders
+        bestAverageShots = shotLeaders
       }
 
       var attemptTotal = 0
@@ -171,29 +109,31 @@ var generateLineups = function(promisedShots) {
       if (scorePotential > greatestScore) {
         greatestScore = scorePotential
         greatestScoreLineup = lineup
-        bestShots = shotLeaders
+        bestScoreShots = shotLeaders
       }
 
       callback(err)
     }, function(err, results) {
-      var shotArray = []
-      for (var zone in bestShots) {
-        if (bestShots.hasOwnProperty(zone)) {
-          bestShots[zone].shots.forEach(function(shot) {
-            delete shot.zone
-              // shot.x = Math.ceil((shot.x+243)/10),
-              // shot.y = Math.ceil((shot.y+17)/9),
-            shot.z = bestShots[zone].opinionatedPercentage
-            shotArray.push(shot)
-          })
-        }
-      }
-      save(shotArray)
+      var bucketOfShots = gatherBestShots(bestScoreShots)
+      save(bucketOfShots)
       deferred.resolve(greatestScoreLineup)
     })
   })
   return deferred.promise;
 }
+
+var gatherBestShots = function(splitShots) {
+  var shotArray = []
+  for (var zone in splitShots) {
+    if (splitShots.hasOwnProperty(zone)) {
+      splitShots[zone].shots.forEach(function(shot) {
+        shot.z = splitShots[zone].opinionatedPercentage
+        shotArray.push(shot)
+      })
+    }
+  }
+}
+
 var save = function(players) {
   var name = '/Users/benjamincarothers/Projects/buckets/data/chart-' + m().format('MM-DD-YYYY') + '.json';
   fs.writeFile(name, JSON.stringify(players, null, 2), 'utf-8');

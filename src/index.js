@@ -22,18 +22,13 @@ if (program.lineup){
 
 if (program.date){
   Q.try(function(){
-    console.log('Found the priors...')
     return priors()
   }).then(function(priors){
-    console.log('Got the players...')
     return players(priors)
   }).then(function(players){
-    console.log('Logged their shots...')
     return shots(players)
   }).then(function(shots){
-    console.log('Best Lineup...')
     return lineups(shots)
   }).then(function(lineups){
-    console.log(lineups)
   })
 }

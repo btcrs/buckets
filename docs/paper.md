@@ -70,11 +70,24 @@ Then I attempted to derive a average single game scoring potential for each of t
 
 # Results
 
+## Shotcharts
+
+![Imgur](http://i.imgur.com/fIlyopd.png)
+![Imgur](http://i.imgur.com/Lwhx3y0.png)
+
 # Related Work
+
+https://www.boozallen.com/content/dam/boozallen/images/capabilities/Technology/sports-analytics/ssac-bball-spatial.pdf
+
+http://www.sloansportsconference.com/wp-content/uploads/2012/02/Goldsberry_Sloan_Submission.pdf
+
+http://www.sloansportsconference.com/wp-content/uploads/2013/The%20Dwight%20Effect%20A%20New%20Ensemble%20of%20Interior%20Defense%20Analytics%20for%20the%20NBA.pdf
+
+http://www.large-scale-sports-analytics.org/Large-Scale-Sports-Analytics/Submissions_files/paperID11.pdf
 
 # Criticisms
 
-Though this experiment explored the novel and intuitive perspective of effective offensive lineups as groups of players that can most efficiently tap into the most available scoring zones, this metric is possibly too simplified to stand alone as definitive proof. For one, without an effectively run offensive strategy players may never have the opportunity to shoot from their respective zones.
+This experiment explored the novel and intuitive perspective of effective offensive lineups as groups of players that can most efficiently tap into the most available scoring zones. ultimately this metric may possibly be too simplified to stand alone as definitive proof. For one, without an effectively run offensive strategy players may never have the opportunity to shoot from their respective zones.
 
 Any given team would realistically need strong passing, movement without the ball, and offensive rebounding, each of which are not taken into account when scoring these lineups, in order to capitalize on the comprehensive and mutually exclusive make up of their floor coverage. It's very likely that lineups that stronger in these unaccounted for qualities could easily make up ground on teams with greater coverage.
 
@@ -83,6 +96,8 @@ Furthermore, though the algorithm was never meant to find holistically great, we
 Lastly, and maybe less critical, many of these lineups are strictly impossible. For one, it's very likely that some of the lineups in consideration currently do, or soon will, cost a total of at least 500 million dollars over a five year period, which is nearly the cost of the most expensive yearly team payroll for only five players. Also, considering that this scoring system was based only on the stats available from the 2015-16 season, these top lineups are only valid exactly now. Because of the number of these players that are locked into long term contracts it's very likely that the the results would be very different by the time that the players in question became available. It could be interesting to consider only those players that are in free agency and then rank the affect they have on all of the team's current starting lineups.
 
 # Conclusion
+
+Being able to truly validate any of the findings presented in this paper is nearly impossible; however based on the evidence presented I argue that the greatest scoring potential for an NBA lineup comes from comprehensive floor coverage rather than a collection of some zones with a shooting percentage significantly above the league average and other significantly below. I proposed a method of evaluating an NBA teams offensive ability by considering the sum of each players strengths, a bold but not unwarranted proposition. Lastly, I showed how NBA data can be consumed and manipulated with Node making sports analytics and specifically basketball data more accessible and consumable by anyone that knows javascript.
 
 # Future Work
 

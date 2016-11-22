@@ -9,19 +9,18 @@ var generateLineups = function(promisedShots) {
   var deferred = Q.defer();
   fs.readFile('/Users/benjamincarothers/Projects/buckets/data/shots-11-13-2016.json', function(err, data) {
     //https://en.wikipedia.org/wiki/Tweener_(basketball)
-
-    var centerPositions = ['C-F', 'C']
-    var powerForwardPositions = ['F-C', 'F']
-    var forwardPositions = ['F-G', ]
-    var guardPositions = ['G-F']
-    var pointPositions = ['G']
-
     const allShotZones = [
       'restricted area', 'low post', 'high post', 'midrange (lower right)',
       'midrange (lower left)', 'midrange (upper right)', 'midrange (upper left)',
       'midrange (upper middle)', 'three (right corner)', 'three (left corner)',
       'three (right)', 'three (middle)', 'three (left)'
     ]
+
+    var centerPositions = ['C-F', 'C']
+    var powerForwardPositions = ['F-C', 'F']
+    var forwardPositions = ['F-G', ]
+    var guardPositions = ['G-F']
+    var pointPositions = ['G']
 
     var points = []
     var guards = []
@@ -30,14 +29,23 @@ var generateLineups = function(promisedShots) {
     var centers = []
 
     var greatestTotal = 0
-    var greatestTotalLineup = {}
-    var bestTotalShots = {}
     var greatestAverage = 0
-    var greatestAverageLineup = {}
-    var bestAverageShots = {}
     var greatestScore = 0
-    var greatestScoreLineup = {}
-    var bestScoreShots = {}
+
+    var lineups = {
+      "total": {
+        "players": [],
+        "shots": []
+      },
+      "average": {
+        "players": [],
+        "shots": []
+      },
+      "score": {
+        "players": [],
+        "shots": []
+      }
+    }
 
     var positions = promisedShots || JSON.parse(data);
     for (var position in positions) {
@@ -52,71 +60,68 @@ var generateLineups = function(promisedShots) {
           powers = powers.concat(positions[position])
         } else if (pointPositions.indexOf(position) > -1) {
           points = points.concat(positions[position])
-        } else {
-          console.log("???")
         }
       }
     }
     var cp = combinatorics.cartesianProduct(points, guards, forwards, powers, centers)
-
-    const sumValues = (obj) => Object.keys(obj).reduce((acc, value) => acc + obj[value], 0);
-    const zones = {}
-    const shotLeaders = {}
-
     async.map(cp.toArray(), function(lineup, callback) {
+      let bigLeagues = {}
       allShotZones.forEach(function(shotZone) {
+        var bestPlayer = lineup.reduce(function(max, x) {
+          return x.zones[shotZone].opinionatedPercentage > max.zones[shotZone].opinionatedPercentage ? x : max;
+        })
+        bestPlayer['shots'] = bestPlayer['zones'][shotZone]
+        bestPlayer['shots'].name = bestPlayer['name']
+        bigLeagues[shotZone] = bestPlayer['shots']
 
-        zones[shotZone] = Math.max.apply(Math, lineup.map(function(o) {
-          return o.zones[shotZone].opinionatedPercentage;
-        }))
-
-        shotLeaders[shotZone] = lineup.filter(function(person) {
-          return person.zones[shotZone].opinionatedPercentage == zones[shotZone]
-        })[0].zones[shotZone]
       })
-
-      if (sumValues(zones) > greatestTotal) {
-        greatestTotal = sumValues(zones)
-        greatestTotalLineup = lineup
-        bestTotalShots = shotLeaders
-
-      }
-      if (sumValues(zones) / Object.keys(zones).length > greatestAverage) {
-        greatestAverage = sumValues(zones) / Object.keys(zones).length
-        greatestAverageLineup = lineup
-        bestAverageShots = shotLeaders
-      }
-
       var attemptTotal = 0
-      for (var zone in shotLeaders) {
-        if (shotLeaders.hasOwnProperty(zone)) {
-          attemptTotal += shotLeaders[zone].total
+      for (var zone in bigLeagues) {
+        if (bigLeagues.hasOwnProperty(zone)) {
+          attemptTotal += bigLeagues[zone].total
         }
       }
 
       var scorePotential = 0
       var threes = ['three (right corner)', 'three (left corner)', 'three (right)', 'three (middle)', 'three (left)']
-      for (var zone in shotLeaders) {
-        if (shotLeaders.hasOwnProperty(zone)) {
+      for (var zone in bigLeagues) {
+        if (bigLeagues.hasOwnProperty(zone)) {
           if (threes.indexOf(zone) > -1) {
-            scorePotential += (Math.floor(shotLeaders[zone].made / attemptTotal * 85)) * 3
+            scorePotential += (Math.floor(((bigLeagues[zone].made / attemptTotal) * bigLeagues[zone].opinionatedPercentage) * 85) * 3)
           } else {
-            scorePotential += (Math.floor(shotLeaders[zone].made / attemptTotal * 85)) * 2
+            scorePotential += (Math.floor(((bigLeagues[zone].made / attemptTotal) * bigLeagues[zone].opinionatedPercentage) * 85) * 2)
           }
         }
       }
 
-      if (scorePotential > greatestScore) {
+      let sum = a => a.reduce((n, x) => n + x);
+      let totalAmount = sum(Object.keys(bigLeagues).map(x => Number(bigLeagues[x].opinionatedPercentage)));
+      lineup = lineup.map(x => x.name)
+      if (totalAmount > greatestTotal) {
+        greatestTotal = totalAmount
+        lineups['total'] = {
+          'players': lineup,
+          'shots': bigLeagues
+        }
+      } else if (totalAmount / Object.keys(bigLeagues).length > greatestAverage) {
+        greatestAverage = totalAmount / Object.keys(bigLeagues).length
+        lineups['average'] = {
+          'players': lineup,
+          'shots': bigLeagues
+        }
+      } else if (scorePotential > greatestScore) {
         greatestScore = scorePotential
-        greatestScoreLineup = lineup
-        bestScoreShots = shotLeaders
+        console.log(greatestScore)
+        lineups['score'] = {
+          'players': lineup,
+          'shots': bigLeagues
+        }
       }
-
       callback(err)
     }, function(err, results) {
-      var bucketOfShots = gatherBestShots(bestScoreShots)
-      save(bucketOfShots)
-      deferred.resolve(greatestScoreLineup)
+      save(gatherBestShots(lineups['total']), 'total')
+      save(gatherBestShots(lineups['score']), 'score')
+      deferred.resolve(lineups)
     })
   })
   return deferred.promise;
@@ -124,18 +129,20 @@ var generateLineups = function(promisedShots) {
 
 var gatherBestShots = function(splitShots) {
   var shotArray = []
-  for (var zone in splitShots) {
-    if (splitShots.hasOwnProperty(zone)) {
-      splitShots[zone].shots.forEach(function(shot) {
-        shot.z = splitShots[zone].opinionatedPercentage
+  for (var zone in splitShots['shots']) {
+    if (splitShots['shots'].hasOwnProperty(zone)) {
+      splitShots['shots'][zone]['shots'].forEach(function(shot) {
+        shot.z = splitShots['shots'][zone].opinionatedPercentage
         shotArray.push(shot)
       })
     }
   }
+  return shotArray
 }
 
-var save = function(players) {
-  var name = '/Users/benjamincarothers/Projects/buckets/data/chart-' + m().format('MM-DD-YYYY') + '.json';
+var save = function(players, best) {
+  var name = '/Users/benjamincarothers/Projects/buckets/data/chart-' + best +
+    '-' + m().format('MM-DD-YYYY') + '.json';
   fs.writeFile(name, JSON.stringify(players, null, 2), 'utf-8');
 }
 
